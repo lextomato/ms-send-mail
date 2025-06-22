@@ -42,3 +42,10 @@ async def send_mail(data: Payload, authorization: str = Header("")):
         smtp.send_message(msg)
 
     return {"result": True}
+
+@app.get("/__health")
+async def health_check():
+    """
+    Endpoint de salud para verificar que el servicio está activo.
+    """
+    return {"status": "ok", "message": "Mail service is running."}
