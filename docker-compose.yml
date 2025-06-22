@@ -1,0 +1,32 @@
+services:
+  sendmail:
+    build: .
+    image: sendmail-service:latest
+    restart: unless-stopped
+    env_file: /srv/secret-envs/sendmail.env # ↓ SMTP + TOKEN
+    networks: [web] # misma red que Traefik
+    labels:
+      traefik.enable: "true"
+
+      # Router HTTPS
+      traefik.http.routers.sendmail.rule: Host(`api.mollitiam.cl`)
+      traefik.http.routers.sendmail.entrypoints: websecure
+      traefik.http.routers.sendmail.tls.certresolver: le
+      traefik.http.routers.sendmail.service: sendmail-svc
+
+      # Router HTTP → HTTPS
+      traefik.http.routers.sendmail-http.rule: Host(`api.mollitiam.cl`)
+      traefik.http.routers.sendmail-http.entrypoints: web
+      traefik.http.routers.sendmail-http.middlewares: sendmail-redirect
+
+      # redirección 301
+      traefik.http.middlewares.sendmail-redirect.redirectscheme.scheme: https
+      traefik.http.middlewares.sendmail-redirect.redirectscheme.permanent: "true"
+
+      # service
+      traefik.http.services.sendmail-svc.loadbalancer.server.port: "9000"
+
+networks:
+  web:
+    external: true
+    name: traefik_default
