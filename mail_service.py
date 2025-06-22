@@ -1,9 +1,24 @@
 from fastapi import FastAPI, Header, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import os, smtplib
 from email.message import EmailMessage
 
 app = FastAPI()
+
+# ── dominios que pueden llamar a la API ──
+origins = [
+    "https://mollitiam.cl",
+    "https://www.mollitiam.cl",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,          # '*' para todos (no recomendado en prod)
+    allow_credentials=True,
+    allow_methods=["*"],            # GET, POST, OPTIONS…
+    allow_headers=["*"],            # Authorization, Content-Type…
+)
 
 ### ——— variables de entorno ———
 TOKEN      = os.getenv("MAIL_TOKEN")      # debe coincidir con VITE_TOKEN_CLOUD_FUNCTION
