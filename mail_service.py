@@ -14,10 +14,9 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,          # '*' para todos (no recomendado en prod)
-    allow_credentials=True,
-    allow_methods=["*"],            # GET, POST, OPTIONS…
-    allow_headers=["*"],            # Authorization, Content-Type…
+    allow_origins=origins,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
 )
 
 ### ——— variables de entorno ———
