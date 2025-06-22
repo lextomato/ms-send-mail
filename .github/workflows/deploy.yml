@@ -1,0 +1,37 @@
+name: Build & Deploy FastAPI (Docker)
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ci-deploy
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: deploy
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            REPO_DIR=/srv/ms-send-mail
+            REPO_URL=git@github.com:lextomato/ms-send-mail.git
+
+            if [ ! -d "$REPO_DIR/.git" ]; then
+              echo "🔰 Primera vez: clonando repo…"
+              git clone "$REPO_URL" "$REPO_DIR"
+            fi
+
+            cd "$REPO_DIR"
+            git fetch --all
+            git reset --hard origin/main
+
+            echo "🚀 Levantando contenedores FastAPI…"
+            docker compose up -d --build --force-recreate --remove-orphans
